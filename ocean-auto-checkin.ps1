@@ -3,7 +3,8 @@
 #
 #Set Username and Pass
 $user = ""
-$pass = ''
+$pass = ""
+$BotToken = ""
 
 # uncomment for testing
 #$action = "checkout"
@@ -54,6 +55,11 @@ Add-Type -Path "$($workingPath)\WebDriver.dll"
 #
 #-------------------------[Execution]------------------------------------------------------------#
 #
+# Random sleep
+$SleepRandom = Get-Random -Minimum 1 -Maximum 900
+Write-Host "`nRandom timeout: $SleepRandom seconds..`n"
+Start-Sleep $SleepRandom
+
 # create a new ChromeDriver Object instance.
 $ChromeDriver = New-Object OpenQA.Selenium.Chrome.ChromeDriver
 
@@ -162,6 +168,14 @@ if ($marcajes) {
         $Image.Save("$($action)_$($date).jpg")
         
         # To do sent telegram or email with screenshot
+        $doc = "$($workingPath)\$($action)_$($date).jpg" 
+        $Uri = "https://api.telegram.org/bot$($BotToken)/sendDocument" 
+        #Build the Form 
+        $Form = @{ 
+            chat_id = $chatID 
+            document = Get-Item $doc 
+        } 
+        Invoke-RestMethod -Uri $uri -Form $Form -Method Post
     }
 }
 
